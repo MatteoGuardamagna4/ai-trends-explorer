@@ -75,21 +75,23 @@ QDRANT_URL=http://localhost:6333
 INNGEST_API_BASE=http://127.0.0.1:8288/v1
 ```
 
-### Seed the knowledge base
-```bash
-# Start Qdrant
-docker run -p 6333:6333 qdrant/qdrant
+### Run
 
-# Fetch and embed ~100 items from arXiv + RSS feeds
+**First time only — seed the knowledge base:**
+```bash
+# Step 1 — Start Qdrant with persistent storage
+docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
+
+# Step 2 — Seed Qdrant with arXiv papers + RSS articles (~2 min)
 uv run python seed_db.py
 ```
 
-### Run
+**Every time — start all services:**
 ```bash
-# Terminal 1 — Qdrant (keep running)
-docker run -p 6333:6333 qdrant/qdrant
+# Terminal 1 — Qdrant with persistent storage (keep running)
+docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
 
-# Terminal 2 — FastAPI + Inngest functions
+# Terminal 2 — FastAPI + Inngest functions (required for PDF upload)
 uv run uvicorn main:app --reload
 
 # Terminal 3 — Inngest dev server (required for PDF upload)
@@ -100,6 +102,8 @@ uv run streamlit run streamlit_app.py
 ```
 
 Open [http://localhost:8501](http://localhost:8501).
+
+**Note:** Terminals 2 and 3 are only required if you want to use the PDF upload feature. For the dashboard, digest, and explorer, only Terminal 1 and Terminal 4 are needed.
 
 ---
 
